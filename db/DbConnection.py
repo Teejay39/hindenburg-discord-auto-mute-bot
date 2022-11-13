@@ -2,7 +2,6 @@ from abc import ABC
 
 import mariadb
 
-
 class DbConnection(ABC):
 
     def __init__(self, user: str, password: str, host: str, port: int, database: str):

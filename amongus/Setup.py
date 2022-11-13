@@ -33,7 +33,7 @@ class SelectUserName(discord.ui.Select):
         embed.add_field(name="Code", value=f"`{self.code}`")
         embed.add_field(name="Channel", value=self.channel.mention)
         embed.add_field(name="Host", value=self.member.mention)
-        embed.add_field(name="Player connected", value=f"0/{len(self.result)}", inline=False)
+        embed.add_field(name="Player connected", value=f"1/{len(self.result)}", inline=False)
         i = 0
         for row in self.result:
             i = i + 1
@@ -44,8 +44,7 @@ class SelectUserName(discord.ui.Select):
 
         interaction_message: discord.InteractionMessage = await interaction.edit_original_response(content=None,
                                                                                                    embed=embed,
-                                                                                                   view=ViewUserButtons(
-                                                                                                       db_connection=self.db_connection))
+                                                                                                   view=ViewUserButtons(db_connection=self.db_connection, code=self.code))
         sql = f"UPDATE players SET discord_message_id = {interaction_message.id}, discord_voice_id = {self.channel.id}, discord_user_id = {self.member.id}, is_host = TRUE WHERE roomcode = '{self.code}' and username = '{self.values[0]}'"
         self.db_connection.execute(sql)
         sql = f"UPDATE players SET discord_message_id = {interaction_message.id}, discord_voice_id = {self.channel.id} WHERE roomcode = '{self.code}' and is_host = FALSE"
@@ -56,91 +55,31 @@ class SelectUserName(discord.ui.Select):
 #     def __init__(self, db_connection: DbConnection, code: str):
 #         super().__init__(timeout=30)
 
-
 class ViewUserButtons(discord.ui.View):
-    def __init__(self, db_connection: DbConnection):
+    def __init__(self, db_connection: DbConnection, code: str):
         super().__init__(timeout=None)
         self.db_connection = db_connection
+        self.code = code
+        self.maxplayers = self.db_connection.execute_list(f"SELECT maxplayers FROM players WHERE roomcode = '{self.code}' LIMIT 1")
+        
 
     async def on_timeout(self):
         await self.message.edit(content="OVER", view=self)
         print("OVER OVER OVER")
 
-    @discord.ui.button(label="1", row=0)
-    async def button_1_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 1, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="2", row=0)
-    async def button_2_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 2, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="3", row=0)
-    async def button_3_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 3, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="4", row=0)
-    async def button_4_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 4, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="5", row=0)
-    async def button_5_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 5, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="6", row=1)
-    async def button_6_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 6, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="7", row=1)
-    async def button_7_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 7, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="8", row=1)
-    async def button_8_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 8, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="9", row=1)
-    async def button_9_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 9, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="10", row=1)
-    async def button_10_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 10, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="11", row=2)
-    async def button_11_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 11, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="12", row=2)
-    async def button_12_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 12, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="13", row=2)
-    async def button_13_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 13, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="14", row=2)
-    async def button_14_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 14, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
-    @discord.ui.button(label="15", row=2)
-    async def button_15_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
-        msg = await addConnection(self.db_connection, 15, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
-
+    async def buttons(self):
+        for i in range(0, self.maxplayers):
+            num = i + 1
+            row = 0
+            if num > 5 and num < 11:
+                row = 1
+            elif num > 10:
+                row = 2
+            
+            @discord.ui.button(label=str(num), row=row)
+            async def button_callback(self, button: discord.ui.Button, interaction: discord.Interaction, num):
+                msg = await addConnection(self.db_connection, num, interaction)
+                await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
 
 class Setup(commands.Cog):
     def __init__(self, bot: commands.Bot, db_connection: DbConnection):
