@@ -60,7 +60,7 @@ class createButton(discord.ui.Button["ViewUserButtons"]):
     async def callback(self, interaction: discord.Interaction):
         view: ViewUserButtons = self.view
         msg = await addConnection(self.db_connection, num, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10 view=view)
+        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
 
 class ViewUserButtons(discord.ui.View):
     def __init__(self, db_connection: DbConnection, code: str):
