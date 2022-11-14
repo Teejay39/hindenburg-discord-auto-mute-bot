@@ -58,8 +58,9 @@ class createButton(discord.ui.Button["ViewUserButtons"]):
         super().__init__(label=str(num), row=row)
         
     async def callback(self, interaction: discord.Interaction):
+        view: ViewUserButtons = self.view
         msg = await addConnection(self.db_connection, num, interaction)
-        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
+        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10 view=view)
 
 class ViewUserButtons(discord.ui.View):
     def __init__(self, db_connection: DbConnection, code: str):
@@ -67,13 +68,6 @@ class ViewUserButtons(discord.ui.View):
         self.db_connection = db_connection
         self.code = code
         self.maxplayers = self.db_connection.execute_list(f"SELECT maxplayers FROM players WHERE roomcode = '{self.code}' LIMIT 1")
-        
-
-    async def on_timeout(self):
-        await self.message.edit(content="OVER", view=self)
-        print("OVER OVER OVER")
-
-    async def buttons(self):
         for i in range(0, self.maxplayers):
             num = i + 1
             row = 0
@@ -81,11 +75,11 @@ class ViewUserButtons(discord.ui.View):
                 row = 1
             elif num > 10:
                 row = 2
-            
-            @discord.ui.button(label=str(num), row=row)
-            async def button_callback(self, button: discord.ui.Button, interaction: discord.Interaction, num):
-                msg = await addConnection(self.db_connection, num, interaction)
-                await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
+            self.add_item(createButton(num, row))
+        
+    async def on_timeout(self):
+        await self.message.edit(content="OVER", view=self)
+        print("OVER OVER OVER")
 
 class Setup(commands.Cog):
     def __init__(self, bot: commands.Bot, db_connection: DbConnection):
