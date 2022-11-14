@@ -54,12 +54,13 @@ class SelectUserName(discord.ui.Select):
 #         super().__init__(timeout=30)
 
 class createButton(discord.ui.Button["ViewUserButtons"]):
-    def __init__(self, num: int, row: int):
+    def __init__(self, db_connection: DbConnection, num: int, row: int):
         super().__init__(label=str(num), row=row)
+        self.num = num
+        self.db_connection = db_connection
         
     async def callback(self, interaction: discord.Interaction):
-        view: ViewUserButtons = self.view
-        msg = await addConnection(self.db_connection, num, interaction)
+        msg = await addConnection(self.db_connection, self.num, interaction)
         await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
 
 class ViewUserButtons(discord.ui.View):
@@ -75,7 +76,7 @@ class ViewUserButtons(discord.ui.View):
                 row = 1
             elif num > 10:
                 row = 2
-            self.add_item(createButton(num, row))
+            self.add_item(createButton(self.db_connection, num, row))
         
     async def on_timeout(self):
         await self.message.edit(content="OVER", view=self)
