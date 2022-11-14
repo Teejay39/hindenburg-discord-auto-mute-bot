@@ -9,7 +9,6 @@ from db.DbConnection import DbConnection
 
 dotenv.load_dotenv()
 
-
 class SelectUserName(discord.ui.Select):
     def __init__(self, options: list, db_connection: DbConnection, code: str, result, channel: discord.VoiceChannel,
                  member: discord.Member, origin_interaction: discord.Interaction):
@@ -50,10 +49,17 @@ class SelectUserName(discord.ui.Select):
         sql = f"UPDATE players SET discord_message_id = {interaction_message.id}, discord_voice_id = {self.channel.id} WHERE roomcode = '{self.code}' and is_host = FALSE"
         self.db_connection.execute(sql)
 
-
 # class ViewUserName(discord.ui.View):
 #     def __init__(self, db_connection: DbConnection, code: str):
 #         super().__init__(timeout=30)
+
+class createButton(discord.ui.Button["ViewUserButtons"]):
+    def __init__(self, num: int, row: int):
+        super().__init__(label=str(num), row=row)
+        
+    async def callback(self, interaction: discord.Interaction):
+        msg = await addConnection(self.db_connection, num, interaction)
+        await interaction.response.send_message(content=msg, ephemeral=True, delete_after=10)
 
 class ViewUserButtons(discord.ui.View):
     def __init__(self, db_connection: DbConnection, code: str):
